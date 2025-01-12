@@ -1,0 +1,31 @@
+{
+  "name": "vue3-admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:test": "vite --mode test",
+    "dev:uat": "vite --mode uat",
+    "dev:production": "vite --mode production",
+    "build": "vue-tsc && vite build",
+    "build:test": "vue-tsc && vite build --mode test",
+    "build:uat": "vue-tsc && vite build --mode uat",
+    "build:production": "vue-tsc && vite build --mode production",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.1.0",
+    "element-plus": "^2.3.9",
+    "pinia": "^2.1.7",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.5",
+    "vue-tsc": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "@vitejs/plugin-vue": "^4.1.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.0"
+  }
+}
