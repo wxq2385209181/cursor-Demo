@@ -71,15 +71,8 @@ watch(() => props.lineWidth, (newWidth) => {
     updateStyle()
 }, { immediate: true })
 
-const getData = () => {
-    for (let i = 1; i<10;i++) {
-        let data = '';
-        for (let j = 1; j<=i; j++ ) {
-            data += i + 'X' + j + '=' + i*j + ' ';
-        }
-        console.log(data);
-}
-}
+
+
 
 // 初始化画布
 onMounted(() => {
@@ -91,7 +84,6 @@ onMounted(() => {
     ctx.value.lineCap = 'round'
     ctx.value.lineJoin = 'round'
     updateStyle()
-    getData()
 })
 
 // 开始绘制
