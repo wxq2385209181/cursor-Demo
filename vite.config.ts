@@ -1,37 +1,37 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
+import path from 'path'
 
 export default defineConfig(({ command, mode }) => {
+  // 加载环境变量
   const env = loadEnv(mode, process.cwd())
   
   return {
     plugins: [vue()],
-    base: env.VITE_BASE_URL,
+    base: './', // 使用相对路径
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'src')
-      }
-    },
-    server: {
-      port: 5173,
-      open: true,
-      proxy: {
-        '/api': {
-          target: env.VITE_API_URL,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
-        }
+        '@': path.resolve(__dirname, 'src')
       }
     },
     build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: true,
       rollupOptions: {
         input: {
-          main: resolve(__dirname, 'index.html')
+          main: path.resolve(__dirname, 'index.html')
         }
       },
-      outDir: `dist-${env.VITE_ENV}`,
-      sourcemap: env.VITE_ENV !== 'production'
+      target: 'es2015',
+      cssTarget: 'chrome61',
+      chunkSizeWarningLimit: 2000,
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true
+        }
+      }
     }
   }
 }) 

@@ -1,55 +1,75 @@
 <template>
     <div class="handle-canvas-container">
-        <el-card class="canvas-card">
-            <template #header>
-                <div class="card-header">
-                    <span>电子签名</span>
-                    <div class="tools">
-                        <el-select v-model="lineWidth" placeholder="线条粗细">
-                            <el-option
-                                v-for="item in lineWidthOptions"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
-                        <el-color-picker v-model="lineColor" size="small" @change="handleColorChange"/>
+        <el-form :model="form" label-width="auto" style="max-width: 600px">
+            <el-form-item label="姓名">
+                <el-input v-model="form.name" />
+            </el-form-item>
+            <el-form-item label="住址">
+            <el-select v-model="form.region" placeholder="please select your zone">
+                <el-option label="Zone one" value="shanghai" />
+                <el-option label="Zone two" value="beijing" />
+            </el-select>
+            </el-form-item>
+
+            <el-card class="canvas-card">
+                <template #header>
+                    <div class="card-header">
+                        <span>电子签名</span>
+                        <div class="tools">
+                            <el-select v-model="lineWidth" placeholder="线条粗细">
+                                <el-option
+                                    v-for="item in lineWidthOptions"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                />
+                            </el-select>
+                            <el-color-picker v-model="lineColor" size="small" @change="handleColorChange"/>
+                        </div>
+                    </div>
+                </template>
+                
+                <SignaturePad
+                    ref="signaturePadRef"
+                    :width="800"
+                    :height="400"
+                    :line-width="lineWidth"
+                    :line-color="lineColor"
+                    @save="handleSave"
+                />
+
+                <div class="preview" v-if="signatureImage">
+                    <h3>签名预览</h3>
+                    <img :src="signatureImage" alt="签名预览" />
+                    <div class="preview-actions">
+                        <el-button type="primary" @click="downloadSignature">
+                            <el-icon><Download /></el-icon>
+                            下载签名
+                        </el-button>
+                        <el-button @click="clearPreview">
+                            <el-icon><Delete /></el-icon>
+                            清除预览
+                        </el-button>
                     </div>
                 </div>
-            </template>
-            
-            <SignaturePad
-                ref="signaturePadRef"
-                :width="800"
-                :height="400"
-                :line-width="lineWidth"
-                :line-color="lineColor"
-                @save="handleSave"
-            />
-
-            <div class="preview" v-if="signatureImage">
-                <h3>签名预览</h3>
-                <img :src="signatureImage" alt="签名预览" />
-                <div class="preview-actions">
-                    <el-button type="primary" @click="downloadSignature">
-                        <el-icon><Download /></el-icon>
-                        下载签名
-                    </el-button>
-                    <el-button @click="clearPreview">
-                        <el-icon><Delete /></el-icon>
-                        清除预览
-                    </el-button>
-                </div>
-            </div>
-        </el-card>
+            </el-card>
+            <cavans ref="cavans"></cavans>
+            <el-form-item>
+                <el-button type="primary" @click="onSubmit">Create</el-button>
+                <el-button>Cancel</el-button>
+            </el-form-item>
+        </el-form>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { Download, Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import SignaturePad from '@/components/SignaturePad.vue'
+
+
+
 
 // 签名板引用
 const signaturePadRef = ref<InstanceType<typeof SignaturePad> | null>(null)
@@ -67,31 +87,29 @@ const lineWidthOptions = [
 ]
 
 // 签名图片
-const signatureImage = ref('')
+const signatureImage = ref('');
+const form = reactive({
+  name: '',
+  region: '',
+  handleContent: '',
+  card:''
+})
 
 // 处理保存
 const handleSave = (dataUrl: string) => {
+    if (signaturePadRef.value?.isCanvasEmpty()) {
+        ElMessage.warning('请先签名后再保存')
+        return
+    }
+    
     signatureImage.value = dataUrl
+    form.handleContent = dataUrl
     ElMessage.success('签名已保存')
-
-    // for (let i=100; i<1000;i++) {
-    //     let a = i%10;
-    //     let b= (i-a)/10%10;                                                                                                                                                                 ;                                                                                                                                                                                                                                                                                                          
-    //     let c = (i-(b*10+a))/100;
-    //     if (a*a*a+b*b*b+ c*c*c === i) {
-    //       console.log(i);
-    //     }
-    //   }
-
-    for (let i = 1; i<10;i++) {
-        for (let j = 1; j<=i; j++ ) {
-             console.log(i + 'X' + j + '=' + i*j)
-             if (i == j) {
-
-             }
-        }
 }
-}
+
+const onSubmit = () => {
+    
+};
 
 // 处理颜色变化
 const handleColorChange = (color: string) => {

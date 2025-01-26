@@ -1,6 +1,7 @@
 <template>
     <div class="signature-pad-container">
         <!-- 画布容器 -->
+         <div v-if="!dataUrl">
         <canvas
             ref="canvasRef"
             :width="width"
@@ -18,12 +19,16 @@
             <el-button type="primary" @click="save">保存</el-button>
             <el-button @click="clear">清除</el-button>
         </div>
-        <div></div>
+        </div>
+        <div v-else>
+            <img :src="dataUrl" alt="签名">
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 
 // 定义props
 const props = defineProps({
@@ -46,7 +51,7 @@ const props = defineProps({
 })
 
 // 定义emit
-const emit = defineEmits(['save'])
+const emit = defineEmits(['save', 'draw', 'start', 'stop', 'clearFn'])
 
 // 画布相关变量
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -73,7 +78,6 @@ watch(() => props.lineWidth, (newWidth) => {
 
 
 
-
 // 初始化画布
 onMounted(() => {
     if (!canvasRef.value) return
@@ -85,36 +89,6 @@ onMounted(() => {
     ctx.value.lineJoin = 'round'
     updateStyle()
 })
-
-// 开始绘制
-const startDrawing = (e: MouseEvent | TouchEvent) => {
-    isDrawing.value = true
-    const { x, y } = getCoordinates(e)
-    lastX.value = x
-    lastY.value = y
-}
-
-// 绘制过程
-const draw = (e: MouseEvent | TouchEvent) => {
-    if (!isDrawing.value || !ctx.value) return
-    e.preventDefault()
-
-    const { x, y } = getCoordinates(e)
-    
-    ctx.value.beginPath()
-    updateStyle()
-    ctx.value.moveTo(lastX.value, lastY.value)
-    ctx.value.lineTo(x, y)
-    ctx.value.stroke()
-    
-    lastX.value = x
-    lastY.value = y
-}
-
-// 停止绘制
-const stopDrawing = () => {
-    isDrawing.value = false
-}
 
 // 获取坐标
 const getCoordinates = (e: MouseEvent | TouchEvent) => {
@@ -135,18 +109,82 @@ const getCoordinates = (e: MouseEvent | TouchEvent) => {
     }
 }
 
+// 开始绘制
+const startDrawing = (e: MouseEvent | TouchEvent) => {
+    isDrawing.value = true
+    const { x, y } = getCoordinates(e)
+    lastX.value = x
+    lastY.value = y
+    emit('start', { x, y })
+}
+
+// 绘制过程
+const draw = (e: MouseEvent | TouchEvent) => {
+    if (!isDrawing.value || !ctx.value) return
+    e.preventDefault()
+
+    const { x, y } = getCoordinates(e)
+    
+    ctx.value.beginPath()
+    updateStyle()
+    ctx.value.moveTo(lastX.value, lastY.value)
+    ctx.value.lineTo(x, y)
+    ctx.value.stroke()
+    
+    lastX.value = x
+    lastY.value = y
+    emit('draw', { x, y })
+}
+
+// 停止绘制
+const stopDrawing = () => {
+    isDrawing.value = false
+    emit('stop')
+}
+
+
+
 // 清除画布
 const clear = () => {
     if (!ctx.value || !canvasRef.value) return
     ctx.value.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height)
+    emit('clearFn')
 }
 
-// 保存签名
+const dataUrl=ref('');
+// 添加判断画布是否为空的方法
+const isCanvasEmpty = () => {
+    if (!ctx.value || !canvasRef.value) return true
+    
+    const pixelBuffer = ctx.value.getImageData(
+        0, 0, 
+        canvasRef.value.width, 
+        canvasRef.value.height
+    ).data
+
+    // 检查是否所有像素都是透明的
+    return !pixelBuffer.some(x => x !== 0)
+}
+
+// 修改保存方法
 const save = () => {
     if (!canvasRef.value) return
-    const dataUrl = canvasRef.value.toDataURL('image/png')
-    emit('save', dataUrl)
+    
+    // 判断画布是否为空
+    if (isCanvasEmpty()) {
+        ElMessage.warning('请先签名后再保存')
+        return
+    }
+    
+    dataUrl.value = canvasRef.value.toDataURL('image/png')
+    emit('save', dataUrl.value)
 }
+
+// 暴露方法给父组件
+defineExpose({
+    clear,
+    isCanvasEmpty // 暴露判断方法
+})
 </script>
 
 <style scoped>

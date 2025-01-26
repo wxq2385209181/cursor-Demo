@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, RouteRecordRaw, createWebHistory } from 'vue-router'
 import { useUserStore } from '../stores/user'
 
 const baseUrl = import.meta.env.VITE_BASE_URL
@@ -36,6 +36,24 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('../views/HandleCavans.vue'),
                 meta: {
                     title: '签名',
+                    requiresAuth: true
+                }
+            },
+            {
+                path: 'event-record',
+                name: 'EventRecord',
+                component: () => import('../views/EventRecord.vue'),
+                meta: {
+                    title: '事件记录',
+                    requiresAuth: true
+                }
+            },
+            {
+                path: 'vedio',
+                name: 'Vedio',
+                component: () => import('../views/vedio.vue'),
+                meta: {
+                    title: '事件回放',
                     requiresAuth: true
                 }
             }

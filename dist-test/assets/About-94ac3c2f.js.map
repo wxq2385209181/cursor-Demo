@@ -1,1 +1,0 @@
-{"version":3,"file":"About-94ac3c2f.js","sources":["../../src/views/About.vue"],"sourcesContent":["<template>\r\n    <div>\r\n        <h1>关于页面</h1>\r\n    </div>\r\n</template>\r\n\r\n<script setup lang=\"ts\">\r\n</script> "],"names":["_cache","_openBlock","_createElementBlock"],"mappings":"oFAGUA,EAAA,CADF,OAAAC,EAAA,EAAaC,EAAL,MAAA,KAAAF,EAAA,CAAA,IAAAA,EAAA,CAAA,EAAA"}
