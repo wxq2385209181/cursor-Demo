@@ -38,8 +38,9 @@ if [ -d "$PROJECT_NAME" ]; then
     # 清理本地修改
     git reset --hard
     git clean -fd
+    git checkout $BRANCH
     # 拉取最新代码
-    if ! git pull origin $BRANCH; then
+    if ! git pull; then
         error "拉取代码失败，请检查网络和权限"
         exit 1
     fi
@@ -59,7 +60,7 @@ npm install
 
 # 打包
 log "开始打包..."
-npm run build:test
+npm run build
 
 # 部署到目标目录
 log "部署到目标目录..."
